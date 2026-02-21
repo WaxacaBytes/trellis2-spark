@@ -2,21 +2,21 @@ FROM nvcr.io/nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends 
-    git ca-certificates curl wget build-essential 
-    cmake ninja-build pkg-config 
-    libssl-dev zlib1g-dev libbz2-dev libsqlite3-dev libffi-dev liblzma-dev 
-    ffmpeg 
-    python3 python3-pip python3-dev python3-venv 
-    libx11-dev libxext-dev libxi-dev libxxf86vm-dev libxrender-dev libxfixes-dev 
-    mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev 
-    libegl1-mesa-dev libgles2-mesa-dev 
-    libjpeg-dev libtiff-dev libopenjp2-7-dev liblcms2-dev libwebp-dev libfreetype6-dev libpng-dev 
-    sudo jq 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git ca-certificates curl wget build-essential \
+    cmake ninja-build pkg-config \
+    libssl-dev zlib1g-dev libbz2-dev libsqlite3-dev libffi-dev liblzma-dev \
+    ffmpeg \
+    python3 python3-pip python3-dev python3-venv \
+    libx11-dev libxext-dev libxi-dev libxxf86vm-dev libxrender-dev libxfixes-dev \
+    mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev \
+    libegl1-mesa-dev libgles2-mesa-dev \
+    libjpeg-dev libtiff-dev libopenjp2-7-dev liblcms2-dev libwebp-dev libfreetype6-dev libpng-dev \
+    sudo jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Create and activate Python virtual environment
-RUN python3 -m venv /opt/venv 
+RUN python3 -m venv /opt/venv \
     && /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel
 ENV PATH="/opt/venv/bin:${PATH}"
 
@@ -42,18 +42,18 @@ RUN pip install flash_attn==2.7.4.post1 --no-build-isolation
 
 # Install requirements
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt 
+RUN pip install --no-cache-dir -r /tmp/requirements.txt \
     && pip install --no-cache-dir git+https://github.com/EasternJournalist/utils3d.git@9a4eb15e4021b67b12c460c7057d642626897ec8
 
 # Clone repositories
 ARG TRELLIS_REPO=https://github.com/microsoft/TRELLIS.2.git
 ARG TRELLIS_REF=main
 
-RUN mkdir -p /tmp/extensions 
-    && git clone -b "$TRELLIS_REF" --recursive "$TRELLIS_REPO" /workspace/TRELLIS.2 
-    && git clone -b v0.4.0 https://github.com/NVlabs/nvdiffrast.git /tmp/extensions/nvdiffrast 
-    && git clone -b renderutils https://github.com/JeffreyXiang/nvdiffrec.git /tmp/extensions/nvdiffrec 
-    && git clone --recursive https://github.com/JeffreyXiang/CuMesh.git /tmp/extensions/CuMesh 
+RUN mkdir -p /tmp/extensions \
+    && git clone -b "$TRELLIS_REF" --recursive "$TRELLIS_REPO" /workspace/TRELLIS.2 \
+    && git clone -b v0.4.0 https://github.com/NVlabs/nvdiffrast.git /tmp/extensions/nvdiffrast \
+    && git clone -b renderutils https://github.com/JeffreyXiang/nvdiffrec.git /tmp/extensions/nvdiffrec \
+    && git clone --recursive https://github.com/JeffreyXiang/CuMesh.git /tmp/extensions/CuMesh \
     && git clone --recursive https://github.com/JeffreyXiang/FlexGEMM.git /tmp/extensions/FlexGEMM
 
 # Build and install extensions
