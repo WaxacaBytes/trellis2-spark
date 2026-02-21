@@ -36,16 +36,11 @@ RUN pip install --no-cache-dir --pre torch torchvision torchaudio --index-url ht
 # Install auxiliary tools
 RUN pip install --no-cache-dir -U psutil packaging ninja
 
-# Install flash-attn
-ENV PIP_PREFER_BINARY=1
-RUN pip install flash_attn==2.7.4.post1 --no-build-isolation
-
 # Install requirements
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt \
-    && pip install --no-cache-dir git+https://github.com/EasternJournalist/utils3d.git@9a4eb15e4021b67b12c460c7057d642626897ec8
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-# Clone repositories
+# Clone repositories (will be built at first run by entrypoint.sh)
 ARG TRELLIS_REPO=https://github.com/microsoft/TRELLIS.2.git
 ARG TRELLIS_REF=main
 
@@ -55,13 +50,6 @@ RUN mkdir -p /tmp/extensions \
     && git clone -b renderutils https://github.com/JeffreyXiang/nvdiffrec.git /tmp/extensions/nvdiffrec \
     && git clone --recursive https://github.com/JeffreyXiang/CuMesh.git /tmp/extensions/CuMesh \
     && git clone --recursive https://github.com/JeffreyXiang/FlexGEMM.git /tmp/extensions/FlexGEMM
-
-# Build and install extensions
-RUN pip install /tmp/extensions/nvdiffrast --no-build-isolation
-RUN pip install /tmp/extensions/nvdiffrec --no-build-isolation
-RUN pip install /tmp/extensions/CuMesh --no-build-isolation
-RUN pip install /tmp/extensions/FlexGEMM --no-build-isolation
-RUN pip install /workspace/TRELLIS.2/o-voxel --no-build-isolation
 
 WORKDIR /workspace/TRELLIS.2
 
