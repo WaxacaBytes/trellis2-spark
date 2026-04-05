@@ -30,8 +30,12 @@ ENV TORCH_CUDA_ARCH_LIST="12.1+PTX"
 ENV TRITON_PTXAS_PATH="$CUDA_HOME/bin/ptxas"
 ENV TRITON_CACHE_DIR="/workspace/cache/triton"
 
-# Install PyTorch (nightly build for CUDA 12.9)
-RUN pip install --no-cache-dir --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu129
+# Install PyTorch (nightly build for CUDA 12.9) — torch and torchaudio from wheel
+RUN pip install --no-cache-dir --pre torch torchaudio --index-url https://download.pytorch.org/whl/cu129
+
+# Build torchvision from source for Blackwell (sm_120/12.1) — pre-built wheels
+# lack deform_conv2d kernels for this arch, which RMBG-2.0 background removal needs
+RUN FORCE_CUDA=1 MAX_JOBS=4 pip install --no-cache-dir --no-build-isolation git+https://github.com/pytorch/vision.git@main
 
 # Install auxiliary tools
 RUN pip install --no-cache-dir -U psutil packaging ninja
